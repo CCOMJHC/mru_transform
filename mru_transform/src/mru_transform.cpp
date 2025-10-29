@@ -31,6 +31,9 @@ MRUTransform::MRUTransform(rclcpp::Node::SharedPtr node_ptr)
   node_ptr->declare_parameter("odom_topic", odom_topic_);
   node_ptr->get_parameter("odom_topic", odom_topic_);
 
+  node_ptr->declare_parameter("publish_odom", publish_odom_);
+  node_ptr->get_parameter("publish_odom", publish_odom_);
+
   double st = sensor_timeout_.seconds();
   node_ptr->declare_parameter("sensor_timeout", st);
   node_ptr->get_parameter("sensor_timeout", st);
@@ -38,7 +41,8 @@ MRUTransform::MRUTransform(rclcpp::Node::SharedPtr node_ptr)
 
   broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(node_ptr);
 
-  odom_pub_ = node_ptr->create_publisher<nav_msgs::msg::Odometry>(odom_topic_, 50);
+  if(publish_odom_)
+    odom_pub_ = node_ptr->create_publisher<nav_msgs::msg::Odometry>(odom_topic_, 50);
 
   node_ptr->declare_parameter("sensor_names",sensor_names_);
   node_ptr->get_parameter("sensor_names",sensor_names_);
@@ -144,7 +148,7 @@ void MRUTransform::updateOrientation(const rclcpp::Time &now)
 
 void MRUTransform::updateVelocity(const rclcpp::Time &now)
 {
-  if(updateLatest(latest_velocity_, velocity_sensors_, now))
+  if(publish_odom_ && updateLatest(latest_velocity_, velocity_sensors_, now))
   {
     odom_.header.frame_id = odom_frame_;
     odom_.header.stamp = latest_velocity_.header.stamp;
