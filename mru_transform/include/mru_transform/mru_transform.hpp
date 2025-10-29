@@ -78,6 +78,8 @@ private:
   std::string odom_topic_ = "odom";
   std::vector<std::string> sensor_names_ = {"example_sensor"};
 
+  bool publish_odom_ = true;
+
   std::shared_ptr<MapFrame> mapFrame_;
   std::shared_ptr<tf2_ros::TransformBroadcaster> broadcaster_;
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub_;
